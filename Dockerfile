@@ -1,12 +1,10 @@
 FROM golang:latest as builder
 
 RUN mkdir /build
-ADD /colegios-student /build
-
-RUN mkdir -p /root/.ssh
+ADD ./ /build 
+#ver la direccion
 
 WORKDIR /build
-
 RUN env GOOS=linux GOARCH=386 go build -o main .
 
 FROM alpine:latest
