@@ -1,10 +1,7 @@
 package main
 
 type ClassroomsResponse struct {
-		Classrooms []struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"classrooms"`
+	Classrooms []Classroom `json:"classrooms"`
 }
 
 type ClassroomDetailResponse struct {

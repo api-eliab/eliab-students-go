@@ -1,11 +1,14 @@
 package main
+
 import (
 	"encoding/json"
 	"log"
 	"net/http"
 
+	apigo "github.com/josuegiron/api-golang"
 	apigolang "github.com/josuegiron/api-golang"
 )
+
 func getClassrooms(w http.ResponseWriter, r *http.Request) {
 	request := apigolang.Request{
 		HTTPReq: r,
@@ -18,42 +21,11 @@ func getClassrooms(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(studentID)
 
-	muckData := []byte(`
-	{
-		"classrooms": [{
-			"id": 1,
-			"name": "Ciencias Naturales"
-		},
-		{
-			"id": 2,
-			"name": "Matemáticas"
-		},
-		{
-			"id": 3,
-			"name": "Artes Plásticas"
-		},
-		{
-			"id": 4,
-			"name": "Ciencias Sociales"
-		},
-		{
-			"id": 5,
-			"name": "Quimica"
-		}
-	]
+	response = getClassroomsFromStudent(studentID)
+	if response != nil {
+		apigo.SendResponse(response, w)
+		return
 	}
-	`)
-
-	muckStruct := ClassroomsResponse{}
-
-	if err := json.Unmarshal(muckData, &muckStruct); err != nil {
-		panic(err)
-	}
-
-	// Set Sesson
-	w.Header().Set("SessionId", "MySession")
-
-	apigolang.SuccesContentResponse("¡Esta es información de prueba!", "Listado de asignaturas", muckStruct, w)
 	return
 }
 

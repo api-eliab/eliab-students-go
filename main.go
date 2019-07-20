@@ -1,18 +1,24 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	apigolang "github.com/josuegiron/api-golang"
+	apigo "github.com/josuegiron/api-golang"
+	"github.com/josuegiron/log"
 )
 
 func main() {
-	LoadConfiguration()
-	router := mux.NewRouter()
 
-	middlewares := apigolang.MiddlewaresChain(apigolang.BasicAuth, apigolang.RequestHeaderJson, apigolang.GetRequestBodyMiddleware)
+	loadConfiguration()
+	router := mux.NewRouter()
+	log.ChangeCallerSkip(-2)
+
+	if !dbConnect() {
+		log.Panic("Error al conectar a la base de datos!")
+	}
+
+	middlewares := apigo.MiddlewaresChain(apigo.BasicAuth, apigo.RequestHeaderJson, apigo.GetRequestBodyMiddleware)
 
 	router.HandleFunc("/v1.0/student/{studentID}/homeworks", middlewares(getHomeworks)).Methods("GET")
 	router.HandleFunc("/v1.0/student/{studentID}/homework/{homeworkID}", middlewares(getHomeworkDetail)).Methods("GET")
