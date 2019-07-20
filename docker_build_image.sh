@@ -22,7 +22,7 @@ echo "Upload docker image to server:"
 scp devops/images/v$version/$filename root@157.230.214.121:/colegios_api/devops/images || exit 1
 echo "###### SUCCESS LOAD ######"
 
-loadImage="docker load < colegios_api/devops/images"$filename
+loadImage="docker load < colegios_api/devops/images/"$filename
 
 echo "Enter server: "
 ssh root@157.230.214.121<< EOF

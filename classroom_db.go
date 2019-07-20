@@ -12,14 +12,17 @@ type Classroom struct {
 
 // ClassroomDetail ...
 type ClassroomDetail struct {
-	Name    string `json:"name"`
-	Teacher struct {
-		ID       int    `json:"id"`
-		Name     string `json:"name"`
-		LastName string `json:"last_name"`
-	} `json:"teacher"`
+	Name       string       `json:"name"`
 	Grade      string       `json:"grade"`
+	Teachers   []Teacher    `json:"teachers"`
 	CourseDist []CourseDist `json:"course_dist"`
+}
+
+// Teacher ...
+type Teacher struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	LastName string `json:"last_name"`
 }
 
 // CourseDist ...
