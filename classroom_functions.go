@@ -7,6 +7,7 @@ import (
 )
 
 func getClassroomsFromStudent(studentID int64) apigo.Response {
+	var classrooms []Classroom
 	classrooms, err := getClassroomsDB(studentID)
 	if err != nil {
 		log.Error(err)
@@ -16,8 +17,16 @@ func getClassroomsFromStudent(studentID int64) apigo.Response {
 		}
 	}
 
-	response := ClassroomsResponse{Classrooms: classrooms}
+	log.Println(classrooms)
+
+	var response ClassroomsResponse
+	response.Classrooms = classrooms
+
 	return apigo.Success{
 		Content: response,
 	}
+}
+
+func getClasroomDetail(studentID, clasroomID int64) apigo.Response {
+	return nil
 }
