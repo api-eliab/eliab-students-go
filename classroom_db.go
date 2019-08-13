@@ -6,7 +6,7 @@ import (
 
 // Classroom doc...
 type Classroom struct {
-	ID   int    `json:"id"`
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -20,7 +20,7 @@ type ClassroomDetail struct {
 
 // Teacher ...
 type Teacher struct {
-	ID       int    `json:"id"`
+	ID       int64  `json:"id"`
 	Name     string `json:"name"`
 	LastName string `json:"last_name"`
 }
