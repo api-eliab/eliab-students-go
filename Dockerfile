@@ -1,7 +1,7 @@
 FROM golang:latest as builder
 
 RUN mkdir /build
-ADD ./colegios-students /build 
+ADD ./ /build 
 #ver la direccion
 
 WORKDIR /build

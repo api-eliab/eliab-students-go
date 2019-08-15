@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 // Classroom doc...
@@ -27,19 +28,21 @@ type Teacher struct {
 
 // CourseDist ...
 type CourseDist struct {
-	Perfect       bool   `json:"perfect"`
-	Name          string `json:"name"`
-	ID            int64  `json:"id"`
-	CurrentPoints int    `json:"current_points"`
-	Tasks         []Task `json:"tasks"`
+	Perfect       bool    `json:"perfect"`
+	Name          string  `json:"name"`
+	ID            int64   `json:"id"`
+	CurrentPoints float64 `json:"current_points"`
+	Tasks         []Task  `json:"tasks"`
 }
 
 // Task ...
 type Task struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Points string `json:"points"`
-	Type   int    `json:"type"`
+	ID      int     `json:"id"`
+	Name    string  `json:"name"`
+	Points  string  `json:"points"`
+	Type    bool    `json:"type"`
+	Mark    float64 `json:"mark"`
+	Comment string  `json:"comment"`
 }
 
 func getClassroomsDB(studentID int64) (classrooms []Classroom, err error) {
@@ -148,7 +151,8 @@ func getCourseDistDB(studentID, classroomID int64) (courseDists []CourseDist, er
 	JOIN mas_person p ON a.person_id = p.id
 	LEFT JOIN course c ON c.section_id = a.section_id AND c.deleted_at IS NULL
 	LEFT JOIN mas_course mc ON mc.id = c.mas_course_id
-	WHERE a.person_id = @studentID AND mc.id = @classroomID`
+	WHERE a.person_id = @studentID AND mc.id = @classroomID 
+	ORDER BY c.created_at ASC`
 	query, err = getQueryString(
 		query,
 		sql.Named("classroomID", classroomID),
@@ -179,10 +183,12 @@ func getCourseDistDB(studentID, classroomID int64) (courseDists []CourseDist, er
 	return
 }
 func getTasksDB(studentID, courseDistID int64) (tasks []Task, err error) {
-	query := `SELECT g.id, g.name, g.weightage FROM course c 
-	JOIN course_goal g ON g.course_id = c.id
-	LEFT JOIN course_goal_person gp ON gp.goal_id = g.id AND gp.person_id = @studentID AND gp.deleted_at IS NULL
-	WHERE c.id = @courseDistID`
+
+	query := `SELECT cg.id, cg.name AS tarea, cg.weightage AS puntos, cgp.score * cg.weightage/100 AS puntos_recibidos, cgp.comment AS observaciones_del_maestro FROM course c
+		JOIN course_goal cg ON cg.course_id = c.id AND cg.deleted_at IS NULL
+		LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.person_id = @studentID AND cgp.deleted_at IS NULL
+		WHERE c.id = @courseDistID`
+
 	query, err = getQueryString(
 		query,
 		sql.Named("courseDistID", courseDistID),
@@ -198,16 +204,30 @@ func getTasksDB(studentID, courseDistID int64) (tasks []Task, err error) {
 	}
 
 	for rows.Next() {
+		var mark sql.NullFloat64
+		var comment sql.NullString
 		var task Task
 		err = rows.Scan(
 			&task.ID,
 			&task.Name,
 			&task.Points,
+			&mark,
+			&comment,
 		)
 		if err != nil {
 			return
 		}
 
+		task.Mark = mark.Float64
+		task.Comment = comment.String
+
+		if mark.Valid {
+			task.Points = fmt.Sprintf("%0.0f", mark.Float64) + "/" + task.Points + " pts"
+			task.Type = true
+		} else {
+			task.Points = task.Points + " pts"
+			task.Type = false
+		}
 		tasks = append(tasks, task)
 	}
 

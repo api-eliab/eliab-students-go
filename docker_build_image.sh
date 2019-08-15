@@ -9,10 +9,13 @@ imagename="colegios-students"
 filename=$imagename-v$version-$currentDate".tar"
 echo "File name: "$filename
 
-cd .. 
 
 echo "Generate local docker image:"
-docker build -t $imagename:$version . -f colegios-students/Dockerfile --rm=true || exit 1
+docker build -t $imagename:$version . -f ./Dockerfile --rm=true || exit 1
+
+docker rmi $(docker images -f dangling=true -q)
+
+cd ..
 
 echo "Save docker image in file *.tar:"
 docker save "$imagename":"$version" > devops/images/v$version/$filename || exit 1

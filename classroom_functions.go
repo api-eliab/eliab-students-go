@@ -55,6 +55,7 @@ func getClassroomDetailFromUser(studentID, classroomID int64) apigo.Response {
 	}
 
 	for i := 0; i < len(classroomDetail.CourseDist); i++ {
+
 		classroomDetail.CourseDist[i].Tasks, err = getTasksDB(studentID, classroomDetail.CourseDist[i].ID)
 		if err != nil {
 			log.Error(err)
@@ -63,6 +64,17 @@ func getClassroomDetailFromUser(studentID, classroomID int64) apigo.Response {
 				Message: "Error al consultar la información de las tareas!",
 			}
 		}
+
+		var currentPoints float64
+
+		for _, task := range classroomDetail.CourseDist[i].Tasks {
+
+			currentPoints += task.Mark
+
+		}
+
+		classroomDetail.CourseDist[i].CurrentPoints = currentPoints
+
 	}
 
 	var response ClassroomDetailResponse
