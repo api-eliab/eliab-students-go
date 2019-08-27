@@ -7,15 +7,16 @@ import (
 	"github.com/josuegiron/log"
 )
 
-func getHomeworks(studentID int64) apigo.Response {
+func getHomeworks(schoolID string, studentID int64) apigo.Response {
 
-	homeworks, err := getHomeworksDB(studentID)
+	school := School{db: catalog[schoolID]}
+	 
+	homeworks, err := school.getHomeworksDB(studentID)
 	if apigo.Check(err) {
 		return apigo.Error{
 			Title:   "Error al consultar la información de las tareas del estudiante!",
 			Message: "Error al consultar la información de las tareas del estudiante!",
 		}
-
 	}
 
 	var response HomeworksResponse

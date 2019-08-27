@@ -14,19 +14,19 @@ import (
 
 var db *sql.DB
 
-func dbConnect() bool {
 
-	dataSourceName := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", config.DataBase.User, config.DataBase.Password, config.DataBase.Server, config.DataBase.Port, config.DataBase.DataBase)
+func dbConnect(DBID string) bool {
+
+	dataSourceName := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", config.Databases[DBID].User, config.Databases[DBID].Password, config.Databases[DBID].Server, config.Databases[DBID].Port, config.Databases[DBID].DataBase)
 
 	var err error
-
-	db, err = sql.Open("mysql", dataSourceName)
+	catalog[DBID], err = sql.Open("mysql", dataSourceName)
 	if err != nil {
 		log.Error(err)
-		return false
+		return false 
 	}
 
-	if err = db.Ping(); err != nil {
+	if err = catalog[DBID].Ping(); err != nil {
 		log.Error(err)
 		return false
 	}
@@ -35,12 +35,12 @@ func dbConnect() bool {
 
 	// Ping database to see if it's still alive.
 	// Important for handling network issues and long queries.
-	err = db.PingContext(ctx)
+	err = catalog[DBID].PingContext(ctx)
 	if err != nil {
 		log.Fatal("Error pinging database: " + err.Error())
 	}
 
-	err = mysqlVersion()
+	err = mysqlVersion(catalog[DBID])
 	if err != nil {
 		log.Error(err)
 		return false
@@ -50,7 +50,7 @@ func dbConnect() bool {
 
 }
 
-func mysqlVersion() error {
+func mysqlVersion(db *sql.DB) error {
 	query := "select version()"
 
 	row := db.QueryRow(query)

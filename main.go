@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"database/sql"
 
 	"github.com/gorilla/mux"
 	apigo "github.com/josuegiron/api-golang"
@@ -13,13 +14,12 @@ func main() {
 	loadConfiguration()
 	router := mux.NewRouter()
 
-	if !dbConnect() {
-		log.Panic("Error al conectar a la base de datos!")
-	}
+	connect()
+
 
 	middlewares := apigo.MiddlewaresChain(apigo.BasicAuth, apigo.RequestHeaderJson, apigo.GetRequestBodyMiddleware)
 
-	router.HandleFunc("/v1.0/student/{studentID}/homeworks", middlewares(getHomeworksHandler)).Methods("GET")
+	router.HandleFunc("/v1.0/schools/{schoolID}/student/{studentID}/homeworks", middlewares(getHomeworksHandler)).Methods("GET")
 	router.HandleFunc("/v1.0/student/{studentID}/homework/{homeworkID}", middlewares(getHomeworkDetailHandler)).Methods("GET")
 	router.HandleFunc("/v1.0/student/{studentID}/events", middlewares(getEvents)).Methods("GET")
 	router.HandleFunc("/v1.0/student/{studentID}/event/{eventID}/confirm_assisstant", middlewares(confirmEventAssistant)).Methods("POST")
@@ -33,3 +33,18 @@ func main() {
 	apigo.Check(http.ListenAndServe(config.General.ServerAddress, router))
 
 }// end main
+
+
+func connect(){
+	
+	catalog = make(map[string]*sql.DB)
+
+	for dbid, _ := range config.Databases {
+		if !dbConnect(dbid) {
+			log.Info("Error al conectar a la base de datos!")
+		}
+	}
+
+	log.Info(catalog)
+	
+}

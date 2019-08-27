@@ -3,9 +3,19 @@ mode = "dev"
 [general]
 serveraddress = ":9092"
 
-[database]
-database = "db_colegio"
-user = "root"
-password = "anshigua"
-server = "174.138.66.144"
-port = 3306
+[databases]
+
+    [databases.colegio]
+    database = "db_colegio"
+    user = "root"
+    password = "anshigua"
+    server = "174.138.66.144"
+    port = 3306
+
+    [databases.alfarero]
+    database = "db_alfarero"
+    user = "root"
+    password = "anshigua"
+    server = "174.138.66.144"
+    port = 3306
+

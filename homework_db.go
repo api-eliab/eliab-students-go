@@ -6,7 +6,7 @@ import (
 )
 
 
-func getHomeworksDB(studentID int64) (homeworks []HomeworkResponse, err error) {
+func (s *School)getHomeworksDB(studentID int64) (homeworks []HomeworkResponse, err error) {
 
 	query := `SELECT cg.id, c.id AS courseID, cg.name AS taskName, cg.weightage AS points, cg.content AS descripcion_de_tarea, cgp.comment AS observaciones_del_maestro, cg.deliver_date
 	FROM course c
@@ -21,7 +21,7 @@ func getHomeworksDB(studentID int64) (homeworks []HomeworkResponse, err error) {
 		return
 	}
 
-	rows, errR := db.Query(query)
+	rows, errR := s.db.Query(query)
 	if apigo.Checkp(errR) {
 		return homeworks, errR
 	}

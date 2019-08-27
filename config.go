@@ -12,7 +12,7 @@ var config Configuration
 type Configuration struct {
 	Mode     string
 	General  General
-	DataBase DataBase
+	Databases map[string]DataBase
 }
 
 type General struct {
@@ -34,4 +34,5 @@ func loadConfiguration() {
 		log.Printf("Couldn't read config file at [%s]\n", path)
 		log.Fatal(err)
 	}
+	log.Println(config.Databases)
 }

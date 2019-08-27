@@ -8,15 +8,22 @@ import (
 )
 
 func getHomeworksHandler(w http.ResponseWriter, r *http.Request) {
+	
 	request := apigolang.Request{
 		HTTPReq: r,
 	}
+	
 	studentID, response := request.GetURLParamInt64("studentID")
 	if response != nil {
 		apigolang.SendResponse(response, w)
 	}
+	
+	schoolID, response := request.GetURLParamString("schoolID")
+	if response != nil {
+		apigolang.SendResponse(response, w)
+	}
 
-	response = getHomeworks(studentID)
+	response = getHomeworks(schoolID, studentID)
 	if response != nil {
 		apigo.SendResponse(response, w)
 		return
