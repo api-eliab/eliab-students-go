@@ -10,9 +10,7 @@ import (
 func getHomeworks(studentID int64) apigo.Response {
 
 	homeworks, err := getHomeworksDB(studentID)
-	if err != nil {
-
-		log.Error(err)
+	if apigo.Check(err) {
 		return apigo.Error{
 			Title:   "Error al consultar la información de las tareas del estudiante!",
 			Message: "Error al consultar la información de las tareas del estudiante!",

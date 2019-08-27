@@ -12,7 +12,6 @@ func main() {
 
 	loadConfiguration()
 	router := mux.NewRouter()
-	log.ChangeCallerSkip(-2)
 
 	if !dbConnect() {
 		log.Panic("Error al conectar a la base de datos!")
@@ -30,7 +29,7 @@ func main() {
 	router.HandleFunc("/v1.0/student/{studentID}/icon/{iconID}", middlewares(setIconHandler)).Methods("POST")
 
 	log.Println("Starting server on port ", config.General.ServerAddress)
-	if startServerError := http.ListenAndServe(config.General.ServerAddress, router); startServerError != nil {
-		panic(startServerError)
-	}
-}
+
+	apigo.Check(http.ListenAndServe(config.General.ServerAddress, router))
+
+}// end main

@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	apigo "github.com/josuegiron/api-golang"
+
 )
 
 // Classroom doc...
@@ -54,12 +56,12 @@ func getClassroomsDB(studentID int64) (classrooms []Classroom, err error) {
 		query,
 		sql.Named("studentID", studentID),
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
 	rows, errR := db.Query(query)
-	if errR != nil {
+	if apigo.Checkp(err) {
 		return classrooms, errR
 	}
 
@@ -69,7 +71,7 @@ func getClassroomsDB(studentID int64) (classrooms []Classroom, err error) {
 			&classroom.ID,
 			&classroom.Name,
 		)
-		if err != nil {
+		if apigo.Checkp(err) {
 			return
 		}
 
@@ -81,12 +83,12 @@ func getClassroomsDB(studentID int64) (classrooms []Classroom, err error) {
 
 func getClassroomDetilDB(studentID, classroomID int64) (classroom ClassroomDetail, err error) {
 	query := `SELECT mc.name, g.name FROM assignation a 
-	JOIN section s ON s.id = a.section_id
-	JOIN mas_period mp ON mp.id = s.period_id AND mp.current = 1
-	JOIN mas_section ms ON ms.id = s.mas_section_id
-	JOIN mas_grade g ON g.id = ms.grade_id
-	JOIN mas_course mc ON mc.grade_id = g.id
-	JOIN mas_level l ON l.id = g.mas_level_id
+	JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
+	JOIN mas_period mp ON mp.id = s.period_id AND mp.current = 1 AND mp.deleted_at IS NULL
+	JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
+	JOIN mas_grade g ON g.id = ms.grade_id AND g.deleted_at IS NULL
+	JOIN mas_course mc ON mc.grade_id = g.id AND mc.deleted_at IS NULL
+	JOIN mas_level l ON l.id = g.mas_level_id AND l.deleted_at IS NULL
 	WHERE a.person_id = @studentID AND mc.id = @classroomID`
 
 	query, err = getQueryString(
@@ -94,7 +96,7 @@ func getClassroomDetilDB(studentID, classroomID int64) (classroom ClassroomDetai
 		sql.Named("studentID", studentID),
 		sql.Named("classroomID", classroomID),
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
@@ -104,7 +106,7 @@ func getClassroomDetilDB(studentID, classroomID int64) (classroom ClassroomDetai
 		&classroom.Name,
 		&classroom.Grade,
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
@@ -113,19 +115,19 @@ func getClassroomDetilDB(studentID, classroomID int64) (classroom ClassroomDetai
 
 func getTeachersDB(classroomID int64) (teachers []Teacher, err error) {
 	query := `SELECT p.id, p.first_name, p.first_last_name FROM course_owner c
-	JOIN mas_person p ON p.id = c.person_id
-	JOIN mas_course mc ON mc.id = c.course_id
+	JOIN mas_person p ON p.id = c.person_id AND p.deleted_at IS NULL
+	JOIN mas_course mc ON mc.id = c.course_id AND mc.deleted_at IS NULL
 	WHERE mc.id = @classroomID`
 	query, err = getQueryString(
 		query,
 		sql.Named("classroomID", classroomID),
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
 	rows, errR := db.Query(query)
-	if errR != nil {
+	if apigo.Checkp(err) {
 		return teachers, errR
 	}
 
@@ -136,7 +138,7 @@ func getTeachersDB(classroomID int64) (teachers []Teacher, err error) {
 			&teacher.Name,
 			&teacher.LastName,
 		)
-		if err != nil {
+		if apigo.Checkp(err) {
 			return
 		}
 
@@ -147,10 +149,10 @@ func getTeachersDB(classroomID int64) (teachers []Teacher, err error) {
 }
 func getCourseDistDB(studentID, classroomID int64) (courseDists []CourseDist, err error) {
 	query := `SELECT c.id, c.name FROM assignation a 
-	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1
-	JOIN mas_person p ON a.person_id = p.id
+	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
+	JOIN mas_person p ON a.person_id = p.id AND p.deleted_at IS NULL
 	LEFT JOIN course c ON c.section_id = a.section_id AND c.deleted_at IS NULL
-	LEFT JOIN mas_course mc ON mc.id = c.mas_course_id
+	LEFT JOIN mas_course mc ON mc.id = c.mas_course_id AND mc.deleted_at IS NULL
 	WHERE a.person_id = @studentID AND mc.id = @classroomID 
 	ORDER BY c.created_at ASC`
 	query, err = getQueryString(
@@ -158,12 +160,12 @@ func getCourseDistDB(studentID, classroomID int64) (courseDists []CourseDist, er
 		sql.Named("classroomID", classroomID),
 		sql.Named("studentID", studentID),
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
 	rows, errR := db.Query(query)
-	if errR != nil {
+	if apigo.Checkp(err) {
 		return courseDists, errR
 	}
 
@@ -173,7 +175,7 @@ func getCourseDistDB(studentID, classroomID int64) (courseDists []CourseDist, er
 			&courseDist.ID,
 			&courseDist.Name,
 		)
-		if err != nil {
+		if apigo.Checkp(err) {
 			return
 		}
 
@@ -194,12 +196,12 @@ func getTasksDB(studentID, courseDistID int64) (tasks []Task, err error) {
 		sql.Named("courseDistID", courseDistID),
 		sql.Named("studentID", studentID),
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
 	rows, errR := db.Query(query)
-	if errR != nil {
+	if apigo.Checkp(err) {
 		return tasks, errR
 	}
 
@@ -214,7 +216,7 @@ func getTasksDB(studentID, courseDistID int64) (tasks []Task, err error) {
 			&mark,
 			&comment,
 		)
-		if err != nil {
+		if apigo.Checkp(err) {
 			return
 		}
 

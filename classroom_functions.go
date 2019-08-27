@@ -26,10 +26,9 @@ func getClassroomsFromStudent(studentID int64) apigo.Response {
 }
 
 func getClassroomDetailFromUser(studentID, classroomID int64) apigo.Response {
-	var err error
+
 	classroomDetail, err := getClassroomDetilDB(studentID, classroomID)
-	if err != nil {
-		log.Error(err)
+	if apigo.Check(err) {
 		return apigo.Error{
 			Title:   "Error al consultar la información de los cursos del estudiante!",
 			Message: "Error al consultar la información de los cursos del estudiante!",
@@ -37,8 +36,7 @@ func getClassroomDetailFromUser(studentID, classroomID int64) apigo.Response {
 	}
 
 	classroomDetail.Teachers, err = getTeachersDB(classroomID)
-	if err != nil {
-		log.Error(err)
+	if apigo.Check(err) {
 		return apigo.Error{
 			Title:   "Error al consultar la información de los profesores!",
 			Message: "Error al consultar la información de los profesores!",
@@ -46,8 +44,7 @@ func getClassroomDetailFromUser(studentID, classroomID int64) apigo.Response {
 	}
 
 	classroomDetail.CourseDist, err = getCourseDistDB(studentID, classroomID)
-	if err != nil {
-		log.Error(err)
+	if apigo.Check(err){
 		return apigo.Error{
 			Title:   "Error al consultar la información de los bimestres!",
 			Message: "Error al consultar la información de los bimestres!",
@@ -57,8 +54,7 @@ func getClassroomDetailFromUser(studentID, classroomID int64) apigo.Response {
 	for i := 0; i < len(classroomDetail.CourseDist); i++ {
 
 		classroomDetail.CourseDist[i].Tasks, err = getTasksDB(studentID, classroomDetail.CourseDist[i].ID)
-		if err != nil {
-			log.Error(err)
+		if apigo.Check(err){
 			return apigo.Error{
 				Title:   "Error al consultar la información de las tareas!",
 				Message: "Error al consultar la información de las tareas!",

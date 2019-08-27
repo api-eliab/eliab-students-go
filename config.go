@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/BurntSushi/toml"
+
 )
 
 var config Configuration

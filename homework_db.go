@@ -1,24 +1,28 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+	apigo "github.com/josuegiron/api-golang"
+)
+
 
 func getHomeworksDB(studentID int64) (homeworks []HomeworkResponse, err error) {
 
 	query := `SELECT cg.id, c.id AS courseID, cg.name AS taskName, cg.weightage AS points, cg.content AS descripcion_de_tarea, cgp.comment AS observaciones_del_maestro, cg.deliver_date
 	FROM course c
 	JOIN course_goal cg ON cg.course_id = c.id AND cg.deleted_at IS NULL
-	LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.person_id = @studentID AND cgp.deleted_at IS null
+	LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.person_id = @studentID AND cgp.deleted_at IS NULL
 	where cg.deliver_date > NOW()`
 	query, err = getQueryString(
 		query,
 		sql.Named("studentID", studentID),
 	)
-	if err != nil {
+	if apigo.Checkp(err) {
 		return
 	}
 
 	rows, errR := db.Query(query)
-	if errR != nil {
+	if apigo.Checkp(errR) {
 		return homeworks, errR
 	}
 
@@ -34,7 +38,7 @@ func getHomeworksDB(studentID int64) (homeworks []HomeworkResponse, err error) {
 			&longDescription,
 			&homework.DeliveryDate,
 		)
-		if err != nil {
+		if apigo.Checkp(err) {
 			return
 		}
 
