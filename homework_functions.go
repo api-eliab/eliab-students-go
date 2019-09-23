@@ -51,9 +51,13 @@ func getHomeworkDetail(homeworkID, studentID int64) apigo.Response {
 		}
 
 	}
-
-	homeworkDetail.TeachersID = strconv.FormatInt(teachers[0].ID, 10)
-	homeworkDetail.TeachersName = teachers[0].Name + " " + teachers[0].LastName
+	if len(teachers) > 0 {
+		homeworkDetail.TeachersID = strconv.FormatInt(teachers[0].ID, 10)
+		homeworkDetail.TeachersName = teachers[0].Name + " " + teachers[0].LastName
+	}else{
+		homeworkDetail.TeachersID = "0"
+		homeworkDetail.TeachersName = "Sin encargado..."
+	}
 
 	var response HomeworkDetailResponse
 	response.HomeworkDetail = homeworkDetail
