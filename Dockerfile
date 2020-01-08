@@ -1,7 +1,7 @@
 FROM golang:latest as builder
 
 RUN mkdir /build
-ADD ./colegios-students /build 
+ADD ./ /build 
 #ver la direccion
 
 WORKDIR /build
@@ -11,7 +11,7 @@ FROM alpine:latest
 
 RUN mkdir -p /app && adduser -S -D -H -h /app appuser && chown -R appuser /app
 RUN mkdir /app/config
-COPY --from=builder /build/config/config.toml /app/config/
+COPY --from=builder /build/config.toml /app/config/
 COPY --from=builder /build/main /app/
 
 USER appuser

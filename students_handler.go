@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	apigo "github.com/josuegiron/api-golang"
 	apigolang "github.com/josuegiron/api-golang"
 )
 
@@ -67,7 +68,6 @@ func getHomeworks(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-
 func getHomeworkDetail(w http.ResponseWriter, r *http.Request) {
 	request := apigolang.Request{
 		HTTPReq: r,
@@ -115,4 +115,28 @@ func getHomeworkDetail(w http.ResponseWriter, r *http.Request) {
 
 	apigolang.SuccesContentResponse("Detalle de la tarea", "¡Esta es información de prueba!", muckStruct, w)
 	return
+}
+
+func getStudentsHandler(w http.ResponseWriter, r *http.Request) {
+
+	request := apigolang.Request{
+		HTTPReq: r,
+	}
+
+	studentID, response := request.GetURLParamInt64("userID")
+	if response != nil {
+		apigolang.SendResponse(response, w)
+		return
+	}
+
+	log.Println(studentID)
+
+	response = getClassroomsFromStudent(studentID)
+	if response != nil {
+		apigo.SendResponse(response, w)
+		return
+	}
+
+	return
+
 }
