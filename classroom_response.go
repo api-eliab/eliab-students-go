@@ -5,25 +5,33 @@ type ClassroomsResponse struct {
 }
 
 type ClassroomDetailResponse struct {
-	Classroom struct {
-		Name    string `json:"name"`
-		Teacher struct {
-			ID       int    `json:"id"`
-			Name     string `json:"name"`
-			LastName string `json:"last_name"`
-		} `json:"teacher"`
-		Grade      string `json:"grade"`
-		CourseDist []struct {
-			Perfect       bool   `json:"perfect"`
-			Name          string `json:"name"`
-			ID            int    `json:"id"`
-			CurrentPoints int    `json:"current_points"`
-			Tasks         []struct {
-				ID     int    `json:"id"`
-				Name   string `json:"name"`
-				Points string `json:"points"`
-				Type   int    `json:"type"`
-			} `json:"tasks"`
-		} `json:"course_dist"`
-	} `json:"classroom"`
+	ClassroomDetail ClassroomDetail `json:"classroom"`
+}
+
+type ClassroomDetail struct {
+	Name       string       `json:"name"`
+	Teacher    Teacher      `json:"teacher"`
+	Grade      string       `json:"grade"`
+	CourseDist []CourseDist `json:"course_dist"`
+}
+
+type Teacher struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	LastName string `json:"last_name"`
+}
+
+type CourseDist struct {
+	Perfect       bool   `json:"perfect"`
+	Name          string `json:"name"`
+	ID            int64  `json:"id"`
+	CurrentPoints int64  `json:"current_points"`
+	Tasks         []Task `json:"tasks"`
+}
+
+type Task struct {
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Points string `json:"points"`
+	Type   int    `json:"type"`
 }

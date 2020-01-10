@@ -24,7 +24,7 @@ func main() {
 	router.HandleFunc("/v1.0/student/{studentID}/events", middlewares(getEvents)).Methods("GET")
 	router.HandleFunc("/v1.0/student/{studentID}/event/{eventID}/confirm_assisstant", middlewares(confirmEventAssistant)).Methods("POST")
 	router.HandleFunc("/v1.0/student/{studentID}/classrooms", middlewares(getClassrooms)).Methods("Get")
-	router.HandleFunc("/v1.0/student/{studentID}/classroom/{classroomID}", middlewares(getClassroomDetail)).Methods("Get")
+	router.HandleFunc("/v1.0/student/{studentID}/classroom/{classroomID}", middlewares(getClassroomDetailHandler)).Methods("Get")
 	router.HandleFunc("/v1.0/students", middlewares(getStudentsHandler)).Methods("Get")
 	router.HandleFunc("/v1.0/student/{studentID}/icon/{iconID}", middlewares(setIconHandler)).Methods("POST")
 
