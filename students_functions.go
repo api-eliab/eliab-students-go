@@ -1,5 +1,10 @@
 package main
 
+import (
+	apigo "github.com/josuegiron/api-golang"
+	"github.com/josuegiron/log"
+)
+
 // import (
 // 	"fmt"
 
@@ -30,3 +35,21 @@ package main
 // 		Content: respData,
 // 	}
 // }
+
+func getHomeworks(studentID int64) apigo.Response {
+
+	homeworks, err := getHomeworksDB(studentID)
+	if err != nil {
+		log.Error(err)
+		return apigo.Error{
+			Title:   "Error al consultar la información de los cursos del estudiante!",
+			Message: "Error al consultar la información de los cursos del estudiante!",
+		}
+	}
+
+	response := HomeworksResponse{Homeworks: homeworks}
+	return apigo.Success{
+		Content: response,
+	}
+
+}
