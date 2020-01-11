@@ -53,3 +53,21 @@ func getHomeworks(studentID int64) apigo.Response {
 	}
 
 }
+
+func getHomeworkDetail(studentID, homeworkID int64) apigo.Response {
+
+	homework, err := getHomeworkDetailDB(studentID, homeworkID)
+	if err != nil {
+		log.Error(err)
+		return apigo.Error{
+			Title:   "Error al consultar la información de los cursos del estudiante!",
+			Message: "Error al consultar la información de los cursos del estudiante!",
+		}
+	}
+
+	response := HomeworkDetailResponse{HomeworkDetail: homework}
+	return apigo.Success{
+		Content: response,
+	}
+
+}
