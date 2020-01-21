@@ -27,6 +27,7 @@ func main() {
 	router.HandleFunc("/v1.0/student/{studentID}/classroom/{classroomID}", middlewares(getClassroomDetailHandler)).Methods("Get")
 	router.HandleFunc("/v1.0/students", middlewares(getStudentsHandler)).Methods("Get")
 	router.HandleFunc("/v1.0/student/{studentID}/icon/{iconID}", middlewares(setIconHandler)).Methods("POST")
+	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/messages", middlewares(getMessagesHandler)).Methods("GET")
 
 	log.Println("Starting server on port ", config.General.ServerAddress)
 	if startServerError := http.ListenAndServe(config.General.ServerAddress, router); startServerError != nil {

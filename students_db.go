@@ -130,8 +130,8 @@ func getHomeworkDetailDB(studentID, homeworkID int64) (HomeworkDetail, error) {
 		return homework, err
 	}
 
-	homework.ShortDescription = comments.String
-	homework.LongDescription = description.String
+	homework.LongDescription = comments.String
+	homework.ShortDescription = description.String
 	homework.TeachersName = teacherName.String
 	homework.DeliveryDate = deliverDate.Format("02 Jan 2006")
 	//homework.DeliveryHour = deliverDate.Format("3:04PM")
