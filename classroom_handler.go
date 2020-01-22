@@ -5,7 +5,6 @@ import (
 
 	apigo "github.com/josuegiron/api-golang"
 	apigolang "github.com/josuegiron/api-golang"
-	"github.com/josuegiron/log"
 )
 
 func getClassrooms(w http.ResponseWriter, r *http.Request) {
@@ -18,8 +17,6 @@ func getClassrooms(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(studentID)
-
 	response = getClassroomsFromStudent(studentID)
 	if response != nil {
 		apigo.SendResponse(response, w)
@@ -29,6 +26,7 @@ func getClassrooms(w http.ResponseWriter, r *http.Request) {
 }
 
 func getClassroomDetailHandler(w http.ResponseWriter, r *http.Request) {
+
 	request := apigolang.Request{
 		HTTPReq: r,
 	}
@@ -42,9 +40,6 @@ func getClassroomDetailHandler(w http.ResponseWriter, r *http.Request) {
 		apigolang.SendResponse(response, w)
 		return
 	}
-
-	log.Info(studentID)
-	log.Info(classroomID)
 
 	response = getClassroomDetail(studentID, classroomID)
 

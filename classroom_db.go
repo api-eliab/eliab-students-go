@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/josuegiron/log"
 )
 
 // Classroom doc...
@@ -13,13 +15,14 @@ type Classroom struct {
 
 func getClassroomsDB(studentID int64) (classrooms []Classroom, err error) {
 
-	query := `SELECT DISTINCT mc.id, mc.name
-	FROM assignation a 
+	query := `SELECT mc.id, mc.name FROM mas_course mc
+	WHERE mc.grade_id IN (SELECT ms.grade_id
+	FROM assignation a
 	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
-	JOIN mas_person p ON a.person_id = p.id 
-	JOIN course c ON c.section_id = a.section_id AND c.deleted_at IS NULL
-	JOIN mas_course mc ON mc.id = c.mas_course_id 
-	WHERE a.person_id = @studentID`
+	JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
+	JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
+	WHERE a.person_id = @studentID )
+	AND mc.deleted_at IS NULL`
 
 	query, err = getQueryString(
 		query,
@@ -54,15 +57,25 @@ func getClassroomDetailDB(studentID, courseID int64) (ClassroomDetail, error) {
 
 	var cassroomDetail ClassroomDetail
 
-	query := `SELECT DISTINCT mc.id, a.section_id, mc.name, mg.name
-	FROM assignation a 
-	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
-	JOIN mas_person p ON a.person_id = p.id 
-	JOIN course c ON c.section_id = a.section_id AND c.deleted_at IS NULL
-	JOIN mas_course mc ON mc.id = c.mas_course_id 
+	query := `SELECT mc.id, a.section_id, mc.name, mg.name
+	FROM mas_course mc
 	JOIN mas_grade mg ON mg.id = mc.grade_id
+	JOIN (
+	SELECT a.section_id, ms.grade_id FROM assignation a
+	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
+	JOIN section s ON s.id = a.section_id
+	JOIN mas_section ms ON ms.id = s.mas_section_id
+	WHERE person_id = @studentID )
+	a ON a.grade_id = mg.id
+	WHERE mc.grade_id IN (SELECT  ms.grade_id
+	FROM assignation a
+	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
+	JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
+	JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
 	WHERE a.person_id = @studentID 
-	AND mc.id = @courseID`
+	)
+	AND mc.deleted_at IS NULL
+	AND mc.id = @courseID `
 
 	query, err := getQueryString(
 		query,
@@ -133,12 +146,10 @@ func getCourseDist(courseID int64) ([]CourseDist, error) {
 
 	var courseDist []CourseDist
 
-	query := `SELECT mpp.id AS mas_course_id, mpp.name AS period_phase_name
-	FROM mas_course mc
-	JOIN course c ON c.mas_course_id = mc.id AND c.deleted_at IS NULL
-	JOIN mas_period_phase mpp ON mpp.id = c.period_phase_id AND mpp.deleted_at IS NULL
-	JOIN mas_period p ON p.id = mpp.period_id AND p.current = 1
-	WHERE mc.id = @courseID`
+	query := `SELECT mpp.id AS phase_id, mpp.name AS period_phase_name
+	FROM mas_period_phase mpp
+	JOIN mas_period p ON p.id = mpp.period_id
+	WHERE p.current = 1 `
 
 	query, err := getQueryString(
 		query,
@@ -147,6 +158,8 @@ func getCourseDist(courseID int64) ([]CourseDist, error) {
 	if err != nil {
 		return courseDist, err
 	}
+
+	log.Info(query)
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -186,7 +199,8 @@ func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
 	JOIN mas_course mc ON mc.id = c.mas_course_id AND mc.deleted_at IS NULL AND mc.id = @courseID 
 	LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.deleted_at IS NULL AND cgp.person_id = @userID 
 	WHERE cg.deleted_at IS NULL
-	AND p.current = 1`
+	AND p.current = 1
+	`
 
 	query, err := getQueryString(
 		query,

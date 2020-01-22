@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"time"
+
+	"github.com/josuegiron/log"
 )
 
 func getHomeworksDB(studentID int64) ([]Homework, error) {
@@ -12,14 +14,22 @@ func getHomeworksDB(studentID int64) ([]Homework, error) {
 	query := `SELECT cg.id, mc.id AS course, cg.name AS tarea, cg.content descripcion, cgp.comment comentario_de_maestra,
 	cgp.score * cg.weightage / 100 AS nota_para_suma_final, cg.weightage AS peso_en_zona, cg.deliver_date
 	FROM course_goal cg
-	JOIN course c ON c.id = cg.course_id AND c.deleted_at IS NULL
-	JOIN mas_period_phase mpp ON mpp.id = c.period_phase_id AND mpp.deleted_at IS NULL
-	JOIN mas_period p ON p.id = mpp.period_id
-	JOIN mas_course mc ON mc.id = c.mas_course_id AND mc.deleted_at IS NULL
-	LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.deleted_at IS NULL AND cgp.person_id = @studentID
-	WHERE cg.deleted_at IS NULL
-	AND p.current = 1
-	AND cg.deliver_date >= now()`
+	JOIN course c ON c.id = cg.course_id
+	JOIN section s ON s.id = c.section_id
+	JOIN mas_section ms ON ms.id = s.mas_section_id
+	JOIN mas_period_phase mpp ON mpp.id = c.period_phase_id
+	JOIN mas_course mc ON mc.id = c.mas_course_id
+	JOIN mas_grade mg ON mg.id = mc.grade_id
+	LEFT JOIN course_goal_person cgp ON cgp.course_person_id = cg.id AND person_id = @studentID 
+	WHERE mc.grade_id IN (SELECT  ms.grade_id
+		FROM assignation a
+		JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
+		JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
+		JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
+		WHERE a.person_id = @studentID 
+	)
+	AND cg.deleted_at IS NULL AND
+	cg.deliver_date >= NOW()`
 
 	query, err := getQueryString(
 		query,
@@ -28,6 +38,8 @@ func getHomeworksDB(studentID int64) ([]Homework, error) {
 	if err != nil {
 		return homeworks, err
 	}
+
+	log.Info(query)
 
 	rows, err := db.Query(query)
 	if err != nil {
