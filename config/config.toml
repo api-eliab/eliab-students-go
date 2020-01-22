@@ -4,7 +4,7 @@ mode = "dev"
 serveraddress = ":9092"
 
 [database]
-database = "db_colegio"
+database = "db_alfarero"
 user = "root"
 password = "anshigua"
 server = "174.138.66.144"

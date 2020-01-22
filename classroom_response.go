@@ -9,6 +9,8 @@ type ClassroomDetailResponse struct {
 }
 
 type ClassroomDetail struct {
+	ID         int64        `json:"id"`
+	SectionID  int64        `json:"section_id"`
 	Name       string       `json:"name"`
 	Teacher    Teacher      `json:"teacher"`
 	Grade      string       `json:"grade"`

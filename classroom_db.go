@@ -54,7 +54,7 @@ func getClassroomDetailDB(studentID, courseID int64) (ClassroomDetail, error) {
 
 	var cassroomDetail ClassroomDetail
 
-	query := `SELECT DISTINCT mc.name, mg.name
+	query := `SELECT DISTINCT mc.id, a.section_id, mc.name, mg.name
 	FROM assignation a 
 	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
 	JOIN mas_person p ON a.person_id = p.id 
@@ -75,6 +75,8 @@ func getClassroomDetailDB(studentID, courseID int64) (ClassroomDetail, error) {
 
 	row := db.QueryRow(query)
 	err = row.Scan(
+		&cassroomDetail.ID,
+		&cassroomDetail.SectionID,
 		&cassroomDetail.Name,
 		&cassroomDetail.Grade,
 	)
