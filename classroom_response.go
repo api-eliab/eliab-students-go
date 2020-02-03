@@ -32,8 +32,9 @@ type CourseDist struct {
 }
 
 type Task struct {
-	ID     int64  `json:"id"`
-	Name   string `json:"name"`
-	Points string `json:"points"`
-	Type   int    `json:"type"`
+	ID      int64  `json:"id"`
+	Name    string `json:"name"`
+	Points  string `json:"points"`
+	Type    int    `json:"type"`
+	Comment string `json:"comment"`
 }

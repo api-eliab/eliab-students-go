@@ -190,16 +190,40 @@ func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
 
 	var tasks []Task
 
-	query := `SELECT cg.id, cg.name AS tarea, 
-	cgp.score * cg.weightage / 100 AS nota_para_suma_final, cg.weightage AS peso_en_zona
-	FROM course_goal cg
-	JOIN course c ON c.id = cg.course_id AND c.deleted_at IS NULL
-	JOIN mas_period_phase mpp ON mpp.id = c.period_phase_id AND mpp.deleted_at IS NULL AND mpp.id = @distID 
-	JOIN mas_period p ON p.id = mpp.period_id
-	JOIN mas_course mc ON mc.id = c.mas_course_id AND mc.deleted_at IS NULL AND mc.id = @courseID 
-	LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.deleted_at IS NULL AND cgp.person_id = @userID 
-	WHERE cg.deleted_at IS NULL
-	AND p.current = 1
+	query := `
+		SELECT 
+			cg.id, 
+			cg.name AS tarea, 
+			cgp.score * cg.weightage / 100 AS nota_para_suma_final, 
+			cg.weightage AS peso_en_zona, 
+			cgp.comment
+		FROM
+			course_goal cg
+		JOIN 
+			course c 
+				ON c.id = cg.course_id 
+				AND c.deleted_at IS NULL
+		JOIN 
+			mas_period_phase mpp 
+				ON mpp.id = c.period_phase_id 
+				AND mpp.deleted_at IS NULL 
+				AND mpp.id = @distID 
+		JOIN 
+			mas_period p 
+				ON p.id = mpp.period_id
+		JOIN 
+			mas_course mc 
+				ON mc.id = c.mas_course_id 
+				AND mc.deleted_at IS NULL 
+				AND mc.id = @courseID 
+		LEFT JOIN 
+			course_goal_person cgp 
+				ON cgp.goal_id = cg.id 
+				AND cgp.deleted_at IS NULL 
+				AND cgp.person_id = @userID 
+		WHERE 
+			cg.deleted_at IS NULL
+			AND p.current = 1
 	`
 
 	query, err := getQueryString(
@@ -223,12 +247,14 @@ func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
 
 		var task Task
 		var nota, total sql.NullInt64
+		var comment sql.NullString
 
 		err = rows.Scan(
 			&task.ID,
 			&task.Name,
 			&nota,
 			&total,
+			&comment,
 		)
 
 		if err != nil {
@@ -237,6 +263,7 @@ func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
 
 		currentPoints += nota.Int64
 		task.Points = fmt.Sprintf("%v/%v pts", nota.Int64, total.Int64)
+		task.Comment = comment.String
 
 		tasks = append(tasks, task)
 
