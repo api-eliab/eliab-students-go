@@ -57,25 +57,64 @@ func getClassroomDetailDB(studentID, courseID int64) (ClassroomDetail, error) {
 
 	var cassroomDetail ClassroomDetail
 
-	query := `SELECT mc.id, a.section_id, mc.name, mg.name
-	FROM mas_course mc
-	JOIN mas_grade mg ON mg.id = mc.grade_id
-	JOIN (
-	SELECT a.section_id, ms.grade_id FROM assignation a
-	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
-	JOIN section s ON s.id = a.section_id
-	JOIN mas_section ms ON ms.id = s.mas_section_id
-	WHERE person_id = @studentID )
-	a ON a.grade_id = mg.id
-	WHERE mc.grade_id IN (SELECT  ms.grade_id
-	FROM assignation a
-	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
-	JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
-	JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
-	WHERE a.person_id = @studentID 
-	)
-	AND mc.deleted_at IS NULL
-	AND mc.id = @courseID `
+	query := `
+		SELECT 
+			mc.id, 
+			a.section_id, 
+			mc.name, 
+			mg.name
+		FROM 
+			mas_course mc
+		JOIN 
+			mas_grade mg 
+				ON mg.id = mc.grade_id
+		JOIN (
+			SELECT 
+				a.section_id, 
+				ms.grade_id 
+			FROM 
+				assignation a
+			JOIN 
+				mas_period mp 
+					ON a.period_id = mp.id 
+					AND mp.current = 1 
+					AND mp.deleted_at IS NULL
+			JOIN 
+				section s 
+					ON s.id = a.section_id
+			JOIN 
+				mas_section ms 
+					ON ms.id = s.mas_section_id
+			WHERE 
+				person_id = @studentID 
+		) a ON a.grade_id = mg.id
+
+		WHERE 
+			mc.grade_id IN (
+				SELECT  
+					ms.grade_id
+				FROM 
+					assignation a
+				JOIN 
+					mas_period mp 
+						ON a.period_id = mp.id 
+						AND mp.current = 1 
+						AND mp.deleted_at IS NULL
+				JOIN 
+					section s 
+						ON s.id = a.section_id 
+						AND s.deleted_at IS NULL
+				JOIN 
+					mas_section ms 
+						ON ms.id = s.mas_section_id 
+						AND ms.deleted_at IS NULL
+				WHERE 
+					a.person_id = @studentID 
+			)
+
+		AND mc.deleted_at IS NULL
+		AND mc.id = @courseID 
+	`
 
 	query, err := getQueryString(
 		query,
