@@ -13,38 +13,41 @@ func getNotificationsDB(studentID, ownerID int64) ([]Notification, error) {
 
 	query := `
 	
-	SELECT
-		n.id,
-		ch.message, 
-		CONCAT(p.first_name, " ", p.first_last_name) AS teacherName, 
-		n.created_at
-	FROM message_chat ch
-	JOIN 
-		mas_person st
-			ON st.id = ch.student_id
-	JOIN 
-		message_chat_notification n 
-			ON n.message_chat_id = ch.id
-	JOIN 
-		mas_course mc 
-			ON mc.id = ch.course_id
-	JOIN 
-		section s 
-			ON s.id = ch.section_id
-	JOIN
-		mas_section ms 
-			ON ms.id = s.mas_section_id
-	JOIN 
-		mas_grade g 
-			ON g.id = ms.grade_id
-	LEFT JOIN 
-		mas_person p 
-			ON p.id = ch.teacher_id
-	WHERE 
-		ch.approved = 1 
-		AND n.person_id  = @ownerID  
-		AND student_id = @studentID 
-		AND n.sent IN (0,1)
+		SELECT
+			n.id,
+			ch.message, 
+			CONCAT(p.first_name, " ", p.first_last_name) AS teacherName, 
+			n.created_at
+		FROM message_chat ch
+		JOIN 
+			mas_person st
+				ON st.id = ch.student_id
+		JOIN 
+			message_chat_notification n 
+				ON n.message_chat_id = ch.id
+		JOIN 
+			mas_course mc 
+				ON mc.id = ch.course_id
+		JOIN 
+			section s 
+				ON s.id = ch.section_id
+		JOIN
+			mas_section ms 
+				ON ms.id = s.mas_section_id
+		JOIN 
+			mas_grade g 
+				ON g.id = ms.grade_id
+		LEFT JOIN 
+			mas_person p 
+				ON p.id = ch.teacher_id
+		WHERE 
+			ch.approved = 1 
+			AND n.person_id  = @ownerID 
+			AND student_id = @studentID 
+			AND n.sent IN (0,2)
+		ORDER BY n.created_at DESC
+		LIMIT 0,20
+
 `
 
 	query, err := getQueryString(

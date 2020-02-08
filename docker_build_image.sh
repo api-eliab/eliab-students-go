@@ -41,7 +41,7 @@ ssh $server<< EOF
     docker-compose up &> eliabc.log&
     docker rmi $(docker images -f dangling=true -q)
 EOF
-echo "###### SUCCESS DEPLOY MODULE ######"
+echo "\n###### SUCCESS DEPLOY MODULE ######\n"
 
 git status
 
@@ -55,8 +55,8 @@ then
     git add .
     git commit -m "$message"
     git push
-    echo "###### SUCCESS SCRIPT ######"
+    echo "\n###### SUCCESS SCRIPT ######\n"
 else 
-    echo "###### SUCCESS SCRIPT[NOT COMMIT] ######"
+    echo "\n###### SUCCESS SCRIPT[NOT COMMIT] ######\n"
     exit 1
 fi
