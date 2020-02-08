@@ -19,8 +19,10 @@ func getHomeworksDB(studentID int64) ([]Homework, error) {
 			cgp.comment comentario_de_maestra,
 			cgp.score * cg.weightage / 100 AS nota_para_suma_final, 
 			cg.weightage AS peso_en_zona, 
-			cg.deliver_date
+			cg.deliver_date,
+			cgt.name
 		FROM course_goal cg
+		JOIN course_goal_type cgt ON cgt.id = cg.course_goal_type_id
 		JOIN course c ON c.id = cg.course_id
 		JOIN section s ON s.id = c.section_id
 		JOIN mas_section ms ON ms.id = s.mas_section_id
@@ -72,6 +74,7 @@ func getHomeworksDB(studentID int64) ([]Homework, error) {
 			&nota,
 			&total,
 			&deliverDateStr,
+			&homework.Type,
 		)
 
 		if err != nil {
@@ -101,23 +104,42 @@ func getHomeworkDetailDB(studentID, homeworkID int64) (HomeworkDetail, error) {
 
 	var homework HomeworkDetail
 
-	query := `SELECT cg.id AS tarea_id, cg.weightage AS puntos_de_la_tarea, cg.name titulo, cg.content AS description, cgp.comment comentario_de_maestra,
-	mc.id AS mas_course_id, mc.name AS course_name, cg.deliver_date,
-	(SELECT CONCAT_WS(' ', mp.first_name, mp.second_name, mp.first_last_name, mp.second_last_name)
-	FROM course_owner co
-	JOIN mas_person mp ON mp.id = co.person_id AND mp.deleted_at IS NULL
-	JOIN mas_course mc2 ON mc2.id = co.course_id AND mc2.deleted_at IS NULL
-	WHERE co.deleted_at IS NULL
-	AND mc2.id = mc.id limit 1 ) as teacherName
-	FROM course_goal cg
-	JOIN course c ON c.id = cg.course_id AND c.deleted_at IS NULL
-	JOIN mas_period_phase mpp ON mpp.id = c.period_phase_id AND mpp.deleted_at IS NULL
-	JOIN mas_course mc ON mc.id = c.mas_course_id AND mc.deleted_at IS NULL
-	JOIN mas_grade mg ON mg.id = mc.grade_id AND mg.deleted_at IS NULL
-	JOIN section s ON s.id = c.section_id AND s.deleted_at IS NULL
-	LEFT JOIN course_goal_person cgp ON cgp.goal_id = cg.id AND cgp.deleted_at IS NULL AND cgp.person_id = @studentID 
-	WHERE cg.id = @homeworkID 
-	AND cg.deleted_at IS NULL`
+	query := `
+		SELECT 
+			cg.id AS tarea_id, 
+			cg.weightage AS puntos_de_la_tarea, 
+			cg.name titulo, 
+			cg.content AS description, 
+			cgp.comment comentario_de_maestra,
+			mc.id AS mas_course_id, 
+			mc.name AS course_name, 
+			cg.deliver_date,
+			(SELECT CONCAT_WS(' ', mp.first_name, mp.second_name, mp.first_last_name, mp.second_last_name)
+				FROM 
+					course_owner co
+				JOIN mas_person mp ON mp.id = co.person_id AND mp.deleted_at IS NULL
+				JOIN mas_course mc2 ON mc2.id = co.course_id AND mc2.deleted_at IS NULL
+				WHERE 
+					co.deleted_at IS NULL
+					AND mc2.id = mc.id limit 1 
+			) as teacherName,
+			cgt.name AS homework_type
+		FROM 
+			course_goal cg
+		JOIN course_goal_type cgt ON cgt.id = cg.course_goal_type_id
+		JOIN course c ON c.id = cg.course_id AND c.deleted_at IS NULL
+		JOIN mas_period_phase mpp ON mpp.id = c.period_phase_id AND mpp.deleted_at IS NULL
+		JOIN mas_course mc ON mc.id = c.mas_course_id AND mc.deleted_at IS NULL
+		JOIN mas_grade mg ON mg.id = mc.grade_id AND mg.deleted_at IS NULL
+		JOIN section s ON s.id = c.section_id AND s.deleted_at IS NULL
+		LEFT JOIN 
+			course_goal_person cgp ON cgp.goal_id = cg.id 
+			AND cgp.deleted_at IS NULL 
+			AND cgp.person_id = @studentID 
+		WHERE 
+			cg.id = @homeworkID 
+			AND cg.deleted_at IS NULL
+	`
 
 	query, err := getQueryString(
 		query,
@@ -143,6 +165,7 @@ func getHomeworkDetailDB(studentID, homeworkID int64) (HomeworkDetail, error) {
 		&homework.ClassroomName,
 		&deliverDateStr,
 		&teacherName,
+		&homework.Type,
 	)
 	if err != nil {
 		return homework, err

@@ -28,7 +28,7 @@ docker save "$imagename":"$version" > $localPath/$filename || exit 1
 echo $filename
 
 echo "Upload docker image to server:"
-scp $localPath/$filename $server:$remotePath || exit 1
+rsync -rPavzh $localPath/$filename $server:$remotePath/$filename || exit 1
 echo "###### SUCCESS LOAD ######"
 
 loadImage="docker load < "$remotePath"/"$filename
