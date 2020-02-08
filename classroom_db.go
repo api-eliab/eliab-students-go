@@ -16,13 +16,17 @@ type Classroom struct {
 func getClassroomsDB(studentID int64) (classrooms []Classroom, err error) {
 
 	query := `SELECT mc.id, mc.name FROM mas_course mc
-	WHERE mc.grade_id IN (SELECT ms.grade_id
-	FROM assignation a
-	JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
-	JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
-	JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
-	WHERE a.person_id = @studentID )
-	AND mc.deleted_at IS NULL`
+	WHERE mc.grade_id IN (
+		SELECT ms.grade_id
+		FROM assignation a
+		JOIN mas_period mp ON a.period_id = mp.id AND mp.current = 1 AND mp.deleted_at IS NULL
+		JOIN section s ON s.id = a.section_id AND s.deleted_at IS NULL
+		JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
+		WHERE a.person_id = @studentID 
+		AND a.deleted_at IS NULL
+	)
+	AND mc.deleted_at IS NULL
+	`
 
 	query, err = getQueryString(
 		query,
