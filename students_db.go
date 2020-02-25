@@ -3,13 +3,21 @@ package main
 import (
 	"database/sql"
 	"time"
-
-	"github.com/josuegiron/log"
 )
 
-func getHomeworksDB(studentID int64) ([]Homework, error) {
+func getHomeworksDB(studentID, expire int64) ([]Homework, error) {
 
 	var homeworks []Homework
+
+	filterDate := `cg.deliver_date >= DATE_SUB(NOW(), INTERVAL 1 DAY)`
+	order := `ORDER BY cg.deliver_date`
+
+	if expire == 1 {
+
+		filterDate = `cg.deliver_date <= NOW()`
+		order = `ORDER BY cg.deliver_date DESC`
+
+	}
 
 	query := `
 		SELECT 
@@ -37,11 +45,9 @@ func getHomeworksDB(studentID int64) ([]Homework, error) {
 			JOIN mas_section ms ON ms.id = s.mas_section_id AND ms.deleted_at IS NULL
 			WHERE a.person_id = @studentID 
 		)
-		AND cg.deleted_at IS NULL AND
-		cg.deliver_date >= NOW()
-		ORDER BY 
-			cg.deliver_date
-
+		AND cg.deleted_at IS NULL 
+		AND ` + filterDate + ` 
+		` + order + ` 
 	`
 
 	query, err := getQueryString(
@@ -51,8 +57,6 @@ func getHomeworksDB(studentID int64) ([]Homework, error) {
 	if err != nil {
 		return homeworks, err
 	}
-
-	log.Info(query)
 
 	rows, err := db.Query(query)
 	if err != nil {

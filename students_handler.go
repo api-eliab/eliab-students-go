@@ -9,44 +9,46 @@ import (
 )
 
 func getHomeworksHandler(w http.ResponseWriter, r *http.Request) {
+
 	request := apigolang.Request{
 		HTTPReq: r,
 	}
+
 	studentID, response := request.GetURLParamInt64("studentID")
 	if response != nil {
 		apigolang.SendResponse(response, w)
 	}
 
-	response = getHomeworks(studentID)
+	expire, _ := request.GetQueryParamInt64("expire")
+
+	response = getHomeworks(studentID, expire)
 	apigo.SendResponse(response, w)
 	return
 
 }
 
 func getHomeworkDetailHandler(w http.ResponseWriter, r *http.Request) {
+
 	request := apigolang.Request{
 		HTTPReq: r,
 	}
+
 	studentID, response := request.GetURLParamInt64("studentID")
 	if response != nil {
 		apigolang.SendResponse(response, w)
 		return
 	}
+
 	homeworkID, responseh := request.GetURLParamInt64("homeworkID")
 	if responseh != nil {
 		apigolang.SendResponse(responseh, w)
 		return
 	}
 
-	log.Println(studentID)
-	log.Println(homeworkID)
-
 	response = getHomeworkDetail(studentID, homeworkID)
-
 	apigo.SendResponse(response, w)
 	return
 
-	return
 }
 
 func getStudentsHandler(w http.ResponseWriter, r *http.Request) {

@@ -36,9 +36,9 @@ import (
 // 	}
 // }
 
-func getHomeworks(studentID int64) apigo.Response {
+func getHomeworks(studentID, expire int64) apigo.Response {
 
-	homeworks, err := getHomeworksDB(studentID)
+	homeworks, err := getHomeworksDB(studentID, expire)
 	if err != nil {
 		log.Error(err)
 		return apigo.Error{
