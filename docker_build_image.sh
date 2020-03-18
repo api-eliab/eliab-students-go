@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Run: ./docker_build_image.sh eliab-students 0.1.1
+# Run: ./docker_build_image.sh 0.1.1
 
 version="$1"
 imagename=$(basename "$PWD")
@@ -21,7 +21,7 @@ echo "File name: "$filename
 echo "Generate local docker image:"
 docker build -t $imagename:$version . -f ./Dockerfile --rm=true || exit 1
 
-docker rmi $(docker images -f dangling=true -q)
+docker rmi -f $(docker images -f dangling=true -q)
 
 echo "Save docker image in file *.tar:"
 docker save "$imagename":"$version" > $localPath/$filename || exit 1
@@ -39,7 +39,7 @@ ssh $server<< EOF
     cd $appRemotePath
     docker-compose down
     docker-compose up &> eliabc.log&
-    docker rmi $(docker images -f dangling=true -q)
+    docker image prune -f
 EOF
 echo "\n###### SUCCESS DEPLOY MODULE ######\n"
 

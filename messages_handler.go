@@ -30,6 +30,30 @@ func getNotificationsHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func getAnnouncementsHandler(w http.ResponseWriter, r *http.Request) {
+
+	request := apigolang.Request{
+		HTTPReq: r,
+	}
+
+	studentID, response := request.GetURLParamInt64("studentID")
+	if response != nil {
+		apigolang.SendResponse(response, w)
+		return
+	}
+
+	ownerID, response := request.GetURLParamInt64("ownerID")
+	if response != nil {
+		apigolang.SendResponse(response, w)
+		return
+	}
+
+	response = getAnnouncements(studentID, ownerID)
+	apigolang.SendResponse(response, w)
+	return
+
+}
+
 func sendMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	var message MessageRequest

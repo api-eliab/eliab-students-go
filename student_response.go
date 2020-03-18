@@ -7,16 +7,16 @@ type HomeworksResponse struct {
 
 // Homework doc ...
 type Homework struct {
-	ID                    int64  `json:"id"`
-	Points                int64  `json:"points"`
-	Title                 string `json:"title"`
-	ShortDescription      string `json:"short_description"`
-	LongDescription       string `json:"long_description"`
-	ClassroomID           string `json:"classroom_id"`
-	DeliveryDateFormatted string `json:"delivery_date_formatted"`
-	DeliveryDate          string `json:"delivery_date"`
-	DeliveryHour          string `json:"delivery_hour,omitempty"`
-	Type                  string `json:"type"`
+	ID                    int64   `json:"id"`
+	Points                float64 `json:"points"`
+	Title                 string  `json:"title"`
+	ShortDescription      string  `json:"short_description"`
+	LongDescription       string  `json:"long_description"`
+	ClassroomID           string  `json:"classroom_id"`
+	DeliveryDateFormatted string  `json:"delivery_date_formatted"`
+	DeliveryDate          string  `json:"delivery_date"`
+	DeliveryHour          string  `json:"delivery_hour,omitempty"`
+	Type                  string  `json:"type"`
 }
 
 // HomeworkDetailResponse doc ...

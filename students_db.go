@@ -66,7 +66,7 @@ func getHomeworksDB(studentID, expire int64) ([]Homework, error) {
 	for rows.Next() {
 
 		var homework Homework
-		var nota, total sql.NullInt64
+		var nota, total sql.NullFloat64
 		var deliverDateStr string
 		var description, comments sql.NullString
 		err = rows.Scan(
@@ -92,7 +92,7 @@ func getHomeworksDB(studentID, expire int64) ([]Homework, error) {
 
 		homework.ShortDescription = comments.String
 		homework.LongDescription = description.String
-		homework.Points = total.Int64
+		homework.Points = total.Float64
 		homework.DeliveryDate = deliverDate.Format("02 Jan 2006")
 		//homework.DeliveryHour = deliverDate.Format("3:04PM")
 		homework.DeliveryDateFormatted = deliverDate.Format("2006-01-02")

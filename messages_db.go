@@ -13,47 +13,47 @@ func getNotificationsDB(studentID, ownerID int64) ([]Notification, error) {
 
 	query := `
 	
-		SELECT
-			n.id,
-			ch.message, 
-			CONCAT(p.first_name, " ", p.first_last_name) AS teacherName, 
+		SELECT DISTINCT
+			ch.id,
+			ch.message,
+			IF( ch.owner_id IS NULL, CONCAT(p.first_name, " ", p.first_last_name), CONCAT(p1.first_name, " ", p1.first_last_name) ) AS creator,
+			mc.name AS course_name,
+			mc.id AS mas_course_id,
+			ms.name AS section_name,
+			s.id AS section_id,
+			g.name AS grade_name,
+			g.id AS grade_id,
 			n.created_at
-		FROM message_chat ch
+		FROM 
+			message_chat ch
 		JOIN 
-			mas_person st
-				ON st.id = ch.student_id
+			mas_person st ON st.id = ch.student_id
 		JOIN 
-			message_chat_notification n 
-				ON n.message_chat_id = ch.id
+			message_chat_notification n ON n.message_chat_id = ch.id
 		JOIN 
-			mas_course mc 
-				ON mc.id = ch.course_id
+			mas_course mc ON mc.id = ch.course_id
 		JOIN 
-			section s 
-				ON s.id = ch.section_id
-		JOIN
-			mas_section ms 
-				ON ms.id = s.mas_section_id
+			section s ON s.id = ch.section_id
 		JOIN 
-			mas_grade g 
-				ON g.id = ms.grade_id
-		LEFT JOIN 
-			mas_person p 
-				ON p.id = ch.teacher_id
-		WHERE 
-			ch.approved = 1 
-			AND n.person_id  = @ownerID 
-			AND student_id = @studentID 
-			AND n.sent IN (0,2)
-		ORDER BY n.created_at DESC
+			mas_section ms ON ms.id = s.mas_section_id
+		JOIN 
+			mas_grade g ON g.id = ms.grade_id
+		LEFT 
+			JOIN mas_person p ON p.id = ch.teacher_id
+		LEFT 
+			JOIN mas_person p1 ON p1.id = ch.owner_id
+		WHERE
+			ch.approved = 1
+			AND ch.student_id = @studentID 
+			ORDER BY n.created_at DESC
 		LIMIT 0,20
 
-`
+	`
 
 	query, err := getQueryString(
 		query,
 		sql.Named("studentID", studentID),
-		sql.Named("ownerID", ownerID),
+		//sql.Named("ownerID", ownerID),
 	)
 	if err != nil {
 		return messages, err
@@ -67,23 +67,141 @@ func getNotificationsDB(studentID, ownerID int64) ([]Notification, error) {
 	for rows.Next() {
 
 		var message Notification
+		var createdAtStr string
 
 		err = rows.Scan(
 			&message.ID,
 			&message.Content,
-			&message.Title,
-			&message.CreateAt,
+			&message.TeacherName,
+			&message.CourseName,
+			&message.CourseID,
+			&message.SectionName,
+			&message.SectionID,
+			&message.GradeName,
+			&message.GradeID,
+			&createdAtStr,
 		)
 
 		if err != nil {
 			return messages, err
 		}
 
+		createdAt, err := time.Parse("2006-01-02 15:04:05", createdAtStr)
+		if err != nil {
+			return messages, err
+		}
+
+		message.Title = message.TeacherName
+		message.CreatedAt = createdAt.Format("02 Jan 06 15:04")
+
 		messages = append(messages, message)
 
 	}
 
 	return messages, nil
+
+}
+
+func getAnnouncementsDB(studentID int64) ([]Notification, error) {
+
+	var announcements []Notification
+
+	query := `
+	
+		SELECT DISTINCT 
+			msg.id,
+			IF(ISNULL(msg.file), 0, 1) hasfile,
+			msg.message,
+			CONCAT(p.first_name, " ", p.first_last_name) AS creator,
+			msg.mas_course_id,
+			IF( msg.mas_course_id IS NULL, '', mc.name ) AS course_name,
+			ms.name AS section_name,
+			s.id AS section_id,
+			g.name AS grade_name,
+			g.id AS grade_id,
+			msg.created_at
+		FROM 	
+			message_section_ok ok
+		JOIN 	
+			message_section msg ON msg.id = ok.message_section_id
+		JOIN 	
+			mas_person p ON p.id = msg.user_id
+		JOIN 	
+			section s ON s.id = msg.section_id
+		JOIN 	
+			mas_section ms ON ms.id = s.mas_section_id
+		JOIN 	
+			mas_grade g ON g.id = ms.grade_id
+		LEFT JOIN 
+			mas_course mc ON mc.id = msg.mas_course_id
+		WHERE 
+			ok.student_id = @studentID 
+			AND msg.approve = 1
+		ORDER BY 
+		created_at DESC
+
+	`
+
+	query, err := getQueryString(
+		query,
+		sql.Named("studentID", studentID),
+	)
+
+	if err != nil {
+		return announcements, err
+	}
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return announcements, err
+	}
+
+	for rows.Next() {
+
+		var announcement Notification
+		var createdAtStr string
+		var courseID sql.NullInt64
+
+		var hasfile bool
+
+		err = rows.Scan(
+			&announcement.ID,
+			&hasfile,
+			&announcement.Content,
+			&announcement.TeacherName,
+			&courseID,
+			&announcement.CourseName,
+			&announcement.SectionName,
+			&announcement.SectionID,
+			&announcement.GradeName,
+			&announcement.GradeID,
+			&createdAtStr,
+		)
+
+		if err != nil {
+			return announcements, err
+		}
+
+		if hasfile {
+
+			announcement.File = fmt.Sprintf("https://alfarero.eliabc.com/open/message/file/%v", announcement.ID)
+
+		}
+
+		createdAt, err := time.Parse("2006-01-02 15:04:05", createdAtStr)
+		if err != nil {
+			return announcements, err
+		}
+
+		announcement.Title = announcement.TeacherName
+		announcement.CreatedAt = createdAt.Format("02 Jan 06 15:04")
+		announcement.CourseID = courseID.Int64
+
+		announcements = append(announcements, announcement)
+
+	}
+
+	return announcements, nil
 
 }
 
@@ -156,7 +274,8 @@ func geMessagesDB(studentID, ownerID, classroomID, sectionID int64) ([]Message, 
 
 	var messages []Message
 
-	query := `SELECT mc.message, t.first_name, t.first_last_name, ow.first_name, ow.first_last_name, .mc.created_at, mc.` + "`" + "in" + "`" + `, mc.approved
+	query := `
+	SELECT mc.message, t.first_name, t.first_last_name, ow.first_name, ow.first_last_name, .mc.created_at, mc.` + "`" + "in" + "`" + `, mc.approved
 	FROM message_chat mc
 	JOIN mas_person s ON s.id = mc.student_id
 	JOIN section sect ON sect.id = mc.section_id

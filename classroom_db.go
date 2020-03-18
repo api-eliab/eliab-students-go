@@ -229,7 +229,7 @@ func getCourseDist(courseID int64) ([]CourseDist, error) {
 
 }
 
-func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
+func getTasksDB(distID, courseID, userID int64) ([]Task, float64, error) {
 
 	var tasks []Task
 
@@ -284,12 +284,12 @@ func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
 		return tasks, 0, err
 	}
 
-	currentPoints := int64(0)
+	currentPoints := float64(0)
 
 	for rows.Next() {
 
 		var task Task
-		var nota, total sql.NullInt64
+		var nota, total sql.NullFloat64
 		var comment sql.NullString
 
 		err = rows.Scan(
@@ -304,8 +304,8 @@ func getTasksDB(distID, courseID, userID int64) ([]Task, int64, error) {
 			return tasks, 0, err
 		}
 
-		currentPoints += nota.Int64
-		task.Points = fmt.Sprintf("%v/%v pts", nota.Int64, total.Int64)
+		currentPoints += nota.Float64
+		task.Points = fmt.Sprintf("%v/%v pts", nota.Float64, total.Float64)
 		task.Comment = comment.String
 
 		tasks = append(tasks, task)

@@ -28,6 +28,7 @@ func main() {
 	router.HandleFunc("/v1.0/students", middlewares(getStudentsHandler)).Methods("Get")
 	router.HandleFunc("/v1.0/student/{studentID}/icon/{iconID}", middlewares(setIconHandler)).Methods("POST")
 	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/messages", middlewares(getNotificationsHandler)).Methods("GET")
+	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/announcements", middlewares(getAnnouncementsHandler)).Methods("GET")
 	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/sections/{sectionID}/classrooms/{classroomID}/messages", middlewares(sendMessageHandler)).Methods("POST")
 	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/sections/{sectionID}/classrooms/{classroomID}/messages", middlewares(getConversationHandler)).Methods("GET")
 

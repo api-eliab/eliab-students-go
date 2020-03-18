@@ -5,11 +5,19 @@ type NotificationsResponse struct {
 }
 
 type Notification struct {
-	ID       int64  `json:"id"`
-	Title    string `json:"title"`
-	Content  string `json:"content"`
-	CreateAt string `json:"createdAt"`
-	Type     string `json:"type"`
+	ID          int64  `json:"id"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
+	CreatedAt   string `json:"createdAt"`
+	TeacherName string `json:"teacherName"`
+	SectionID   int64  `json:"sectionId"`
+	SectionName string `json:"sectionName"`
+	CourseID    int64  `json:"courseId"`
+	CourseName  string `json:"courseName"`
+	GradeID     int64  `json:"gradeId"`
+	GradeName   string `json:"gradeName"`
+	File        string `json:"file"`
+	Type        string `json:"type"`
 }
 
 type MessageRequest struct {
@@ -27,4 +35,10 @@ type Message struct {
 	OwnerName   string `json:"owner_name"`
 	Time        string `json:"time"`
 	Aproved     int    `json:"approved"`
+	SectionID   int64  `json:"sectionId"`
+	SectionName string `json:"sectionName"`
+	CourseID    int64  `json:"courseId"`
+	CourseName  string `json:"courseName"`
+	GradeID     int64  `json:"gradeId"`
+	GradeName   string `json:"gradeName"`
 }

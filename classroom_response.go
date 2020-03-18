@@ -24,11 +24,11 @@ type Teacher struct {
 }
 
 type CourseDist struct {
-	Perfect       bool   `json:"perfect"`
-	Name          string `json:"name"`
-	ID            int64  `json:"id"`
-	CurrentPoints int64  `json:"current_points"`
-	Tasks         []Task `json:"tasks"`
+	Perfect       bool    `json:"perfect"`
+	Name          string  `json:"name"`
+	ID            int64   `json:"id"`
+	CurrentPoints float64 `json:"current_points"`
+	Tasks         []Task  `json:"tasks"`
 }
 
 type Task struct {

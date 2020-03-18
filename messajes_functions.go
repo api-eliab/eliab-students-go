@@ -22,6 +22,24 @@ func getNotifications(studentID, ownerID int64) apigo.Response {
 	}
 }
 
+func getAnnouncements(studentID, ownerID int64) apigo.Response {
+
+	notifications, err := getAnnouncementsDB(studentID)
+	if err != nil {
+		log.Error(err)
+		return apigo.Error{
+			Title:   "Error al consultar la información de los cursos del estudiante!",
+			Message: "Error al consultar la información de los cursos del estudiante!",
+		}
+	}
+
+	response := NotificationsResponse{Notifications: notifications}
+	return apigo.Success{
+		Content: response,
+	}
+
+}
+
 func sendMessage(studentID, ownerID, classroomID, sectionID int64, message string) apigo.Response {
 
 	err := sendMessageDB(studentID, ownerID, classroomID, sectionID, message)
