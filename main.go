@@ -18,6 +18,7 @@ func main() {
 	}
 
 	middlewares := apigo.MiddlewaresChain(apigo.BasicAuth, apigo.RequestHeaderJson, apigo.GetRequestBodyMiddleware)
+	middlewaresUpload := apigo.MiddlewaresChain(apigo.BasicAuth, apigo.RequestHeaderJson)
 
 	router.HandleFunc("/v1.0/student/{studentID}/homeworks", middlewares(getHomeworksHandler)).Methods("GET")
 	router.HandleFunc("/v1.0/student/{studentID}/homework/{homeworkID}", middlewares(getHomeworkDetailHandler)).Methods("GET")
@@ -31,6 +32,9 @@ func main() {
 	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/announcements", middlewares(getAnnouncementsHandler)).Methods("GET")
 	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/sections/{sectionID}/classrooms/{classroomID}/messages", middlewares(sendMessageHandler)).Methods("POST")
 	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/sections/{sectionID}/classrooms/{classroomID}/messages", middlewares(getConversationHandler)).Methods("GET")
+
+	router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/classrooms/{classroomID}/files", middlewaresUpload(uploadFileHandler)).Methods("POST")
+	// router.HandleFunc("/v1.0/owners/{ownerID}/students/{studentID}/classrooms/{classroomID}/files", middlewares(getConversationHandler)).Methods("GET")
 
 	log.Println("Starting server on port ", config.General.ServerAddress)
 	if startServerError := http.ListenAndServe(config.General.ServerAddress, router); startServerError != nil {

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Run: ./docker_build_image.sh 0.1.1
+# Run: ./docker_build_image.sh 0.1.9
 
 version="$1"
 imagename=$(basename "$PWD")
