@@ -42,8 +42,8 @@ func saveFileInDB(courseTaskFile CourseTaskFile) error {
 						course 
 					WHERE 
 						mas_course_id = @courseID 
-						AND period_phase_id = (SELECT id FROM mas_period_phase WHERE NOW() between start_date and end_date) 
-						AND section_id = (SELECT section_id FROM assignation WHERE person_id = @studentID )
+						AND period_phase_id = (SELECT id FROM mas_period_phase WHERE NOW() between start_date and end_date AND deleted_at IS NULL) 
+						AND section_id = (SELECT section_id FROM assignation WHERE person_id = @studentID AND deleted_at IS NULL)
 				), 
 				 @studentID , 
 				 @userID , 
@@ -68,6 +68,8 @@ func saveFileInDB(courseTaskFile CourseTaskFile) error {
 	if err != nil {
 		return err
 	}
+
+	// log.Info(query)
 
 	query = strings.Replace(query, "unknown", "?", -1)
 
