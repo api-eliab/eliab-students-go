@@ -44,6 +44,9 @@ func saveFileInDB(courseTaskFile CourseTaskFile) error {
 						mas_course_id = @courseID 
 						AND period_phase_id = (SELECT id FROM mas_period_phase WHERE NOW() between start_date and end_date AND deleted_at IS NULL) 
 						AND section_id = (SELECT section_id FROM assignation WHERE person_id = @studentID AND deleted_at IS NULL)
+						AND deleted_at IS NULL
+						ORDER BY id DESC
+						LIMIT 1
 				), 
 				 @studentID , 
 				 @userID , 

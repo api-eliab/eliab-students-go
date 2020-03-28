@@ -11,7 +11,15 @@ import (
 
 func uploadFile(ownerID, studentID, classroomID int64, fileInfo FileInfo) apigo.Response {
 
-	file, err := convertFileToBase64(fileInfo.File, fileInfo.FileHeader)
+	if fileInfo.FileHeader.Size > 5000000 {
+		log.Info(fileInfo.FileHeader.Size)
+		return apigo.Error{
+			Title:   "¡Tu documento es mayor a 5MB!",
+			Message: "Elige un docuento menor a 5MB",
+		}
+	}
+
+	file, err := convertFileToBytes(fileInfo.File, fileInfo.FileHeader)
 	if err != nil {
 		log.Error(err)
 		return apigo.Error{
@@ -45,7 +53,7 @@ func uploadFile(ownerID, studentID, classroomID int64, fileInfo FileInfo) apigo.
 
 }
 
-func convertFileToBase64(file multipart.File, fileHeader *multipart.FileHeader) (interface{}, error) {
+func convertFileToBytes(file multipart.File, fileHeader *multipart.FileHeader) (interface{}, error) {
 
 	defer file.Close()
 
