@@ -4,8 +4,8 @@
 
 version="$1"
 imagename=$(basename "$PWD")
-localPath="../eliab-docker-img"
-server="root@159.203.93.24"
+localPath="../../dimg"
+server="api-eliab-root"
 remotePath="/root/docker-images"
 appRemotePath="/root/api-eliab-dev"
 
@@ -55,8 +55,8 @@ then
     git add .
     git commit -m "$message"
     git push
-    echo "\n###### SUCCESS SCRIPT ######\n"
+    echo -e "\n###### SUCCESS SCRIPT ######\n"
 else 
-    echo "\n###### SUCCESS SCRIPT[NOT COMMIT] ######\n"
+    echo -e "\n###### SUCCESS SCRIPT[NOT COMMIT] ######\n"
     exit 1
 fi
